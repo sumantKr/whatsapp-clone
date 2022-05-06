@@ -1,6 +1,6 @@
 import styled from "styled-components"
 import validator from 'validator'
-import { Avatar, createChainedFunction, IconButton, TextField } from '@mui/material'
+import { Avatar, IconButton } from '@mui/material'
 import ChatIcon from '@mui/icons-material/Chat';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import SearchIcon from '@mui/icons-material/Search'
@@ -11,7 +11,8 @@ import { useEffect, useState } from "react";
 import Chat from "./Chat";
 export default function Sidebar() {
   const [user] = useAuthState(auth);
-  const [allChats,setAllChats] = useState([]);
+  const [allChats, setAllChats] = useState({});
+  const [newChat, setNewChat] = useState(false);
   useEffect(() => {
     (async () => {
       const chatSnap = await getDocs(
@@ -20,12 +21,10 @@ export default function Sidebar() {
           where("users", "array-contains", user.email)
         )
       );
-      chatSnap.forEach(doc=>{
-        setAllChats(prevChatState=>[...prevChatState,doc.data()])
-      })
-      console.log(allChats);
+      setAllChats(chatSnap);
     })();
-  }, [])
+  }, [newChat]);
+
   const createChat = async () => {
     const input = prompt('Enter an Email Address! ');
     if ((!input || !validator.isEmail(input)) || input === user.email) {
@@ -40,14 +39,16 @@ export default function Sidebar() {
       users: [user.email, input]
     })
     alert(input);
+    setNewChat(true);
+
     return;
   }
-  const chatAlreadyExist = async (recipientEmail) => {
 
+  const chatAlreadyExist = async (recipientEmail) => {
     const userSnap = await getDocs(
       query(
         collection(db, "chats"),
-        where("users", "array-contains", user.email, recipientEmail)
+        where("users", "array-contains", recipientEmail)
       )
     );
     userSnap.forEach(doc => {
@@ -56,13 +57,13 @@ export default function Sidebar() {
     if (userSnap.size > 0)
       return true;
     return false;
-
   }
 
+
   return (
-    <Container>
+    <SidebarContainer>
       <Header>
-        <StyledAvatar onClick={() => { auth.signOut() }} />
+        <StyledAvatar src={user.photoURL} onClick={() => { auth.signOut() }} />
         <div>
           <IconButton>
             <ChatIcon />
@@ -79,18 +80,32 @@ export default function Sidebar() {
         </SearchContainer>
         <StartChatButton onClick={async () => await createChat()}>Start A New Chat</StartChatButton>
       </SidebarContent>
-      {
-        allChats.map(()=>{
+      <ChatContainer>
+        {
+          allChats?.docs?.length > 0 ?
+            allChats.docs.map((doc) => {
+              return <Chat key={doc.id} email={
+                doc.data().users[1] === user.email?
+                doc.data().users[0]:
+                doc.data().users[1]
+              
+              } />
+            })
+            :
+            <div style={{ textAlign: "center" }}>
+              No Chats Yet!
+            </div>
 
-        })
-      }
-      <Chat/>
-    </Container>
+        }
+
+      </ChatContainer>
+
+    </SidebarContainer>
   )
 }
 
 
-const Container = styled.div`
+const SidebarContainer = styled.div`
     position:relative;
     left:0;
     top:0;
@@ -98,6 +113,9 @@ const Container = styled.div`
     width:30vw;
     background-color:${({ theme }) => theme.primaryColor};
     padding:20px;
+    @media (max-width:900px){
+      font-size:.8rem;
+    }
 `
 const Header = styled.div`
     position:relative;
@@ -155,5 +173,14 @@ const StartChatButton = styled.button`
           }
 `
 const StyledAvatar = styled(Avatar)`
-          cursor:pointer
+          width:40px;
+          height:40px;
+          border-radius:50%;
+          cursor: pointer;
+`
+const ChatContainer = styled.div`  
+          height: fit-content;
+          width:100%;
+          margin-top:1rem;
+          cursor:pointer;
 `

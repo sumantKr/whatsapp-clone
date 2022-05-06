@@ -7,6 +7,8 @@ body {
 :root {
     --primary: "#efd48b";
     --secondary:"#ececec";
+  
+
 }
 * {
   padding: 0;

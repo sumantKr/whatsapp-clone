@@ -10,6 +10,7 @@ import Loading from '../components/Loading';
 const theme = {
   primaryColor: '#efd48b',
   secondaryColor: '#ececec',
+  secondaryWithOpacity:"#ecececb2",
   boxShadow: "-2px 4px 39px 1px rgba(0,0,0,0.15)"
 }
 function MyApp({ Component, pageProps }) {
