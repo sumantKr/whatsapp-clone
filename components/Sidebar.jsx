@@ -1,5 +1,4 @@
 import styled from "styled-components"
-import validator from 'validator'
 import { Avatar, IconButton } from '@mui/material'
 import ChatIcon from '@mui/icons-material/Chat';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -9,10 +8,12 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { addDoc, collection, getDoc, doc, getDocs, query, where } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import Chat from "./Chat";
+import Inputpopup from "./Inputpopup";
 export default function Sidebar() {
   const [user] = useAuthState(auth);
   const [allChats, setAllChats] = useState({});
   const [newChat, setNewChat] = useState(false);
+  const [open,setOpen]=useState(false);
   useEffect(() => {
     (async () => {
       const chatSnap = await getDocs(
@@ -26,43 +27,22 @@ export default function Sidebar() {
   }, [newChat]);
 
   const createChat = async () => {
-    const input = prompt('Enter an Email Address! ');
-    if ((!input || !validator.isEmail(input)) || input === user.email) {
-      alert('Kindly Enter Valid Email')
-      return;
-    }
-    if (await chatAlreadyExist(input)) {
-      alert('chat already exist')
-      return;
-    }
-    await addDoc(collection(db, "chats"), {
-      users: [user.email, input]
-    })
-    alert(input);
-    setNewChat(true);
-
-    return;
+    setOpen(true);
+    
   }
 
-  const chatAlreadyExist = async (recipientEmail) => {
-    const userSnap = await getDocs(
-      query(
-        collection(db, "chats"),
-        where("users", "array-contains", recipientEmail)
-      )
-    );
-    userSnap.forEach(doc => {
-      console.log(doc.data().users)
-    })
-    if (userSnap.size > 0)
-      return true;
-    return false;
-  }
-
+  
 
   return (
     <SidebarContainer>
+    {
+      open?
+      <Inputpopup setOpen={setOpen} setNewChat={setNewChat}/>
+      :
+      null
+    }
       <Header>
+
         <StyledAvatar src={user.photoURL} onClick={() => { auth.signOut() }} />
         <div>
           <IconButton>
@@ -85,10 +65,10 @@ export default function Sidebar() {
           allChats?.docs?.length > 0 ?
             allChats.docs.map((doc) => {
               return <Chat key={doc.id} email={
-                doc.data().users[1] === user.email?
-                doc.data().users[0]:
-                doc.data().users[1]
-              
+                doc.data().users[1] === user.email ?
+                  doc.data().users[0] :
+                  doc.data().users[1]
+
               } />
             })
             :
@@ -106,7 +86,6 @@ export default function Sidebar() {
 
 
 const SidebarContainer = styled.div`
-    position:relative;
     left:0;
     top:0;
     height: 100vh;
