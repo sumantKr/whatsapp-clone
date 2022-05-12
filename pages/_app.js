@@ -37,7 +37,7 @@ function MyApp({ Component, pageProps }) {
     <ThemeProvider theme={theme}>
       {
         !user ?
-          <Login />
+          <Login {...pageProps} />
           :
           <Component {...pageProps} />
       }

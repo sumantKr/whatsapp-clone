@@ -5,7 +5,7 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import SearchIcon from '@mui/icons-material/Search'
 import { auth, db } from "../firebase/firebase-init";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { addDoc, collection, getDoc, doc, getDocs, query, where } from "firebase/firestore";
+import {  collection,  doc, getDocs, query, where } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import Chat from "./Chat";
 import Inputpopup from "./Inputpopup";
@@ -28,7 +28,6 @@ export default function Sidebar() {
 
   const createChat = async () => {
     setOpen(true);
-    
   }
 
   
@@ -64,7 +63,7 @@ export default function Sidebar() {
         {
           allChats?.docs?.length > 0 ?
             allChats.docs.map((doc) => {
-              return <Chat key={doc.id} email={
+              return <Chat key={doc.id} id={doc.id} email={
                 doc.data().users[1] === user.email ?
                   doc.data().users[0] :
                   doc.data().users[1]
@@ -72,7 +71,7 @@ export default function Sidebar() {
               } />
             })
             :
-            <div style={{ textAlign: "center" }}>
+            <div style={{ textAlign: "center",marginTop:"1rem",fontSize:"1rem" }}>
               No Chats Yet!
             </div>
 

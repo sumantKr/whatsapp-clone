@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
 import { auth, db } from '../firebase/firebase-init';
-import { addDoc, collection,getDocs,query,where } from "firebase/firestore";
+import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
 import validator from 'validator'
 import { useAuthState } from 'react-firebase-hooks/auth';
 
@@ -15,7 +15,7 @@ export default function Inputpopup({ setOpen, setNewChat }) {
     }
     if (await chatAlreadyExist(email)) {
       alert('chat already exist')
-    
+
       return;
     }
     await addDoc(collection(db, "chats"), {
@@ -39,7 +39,9 @@ export default function Inputpopup({ setOpen, setNewChat }) {
       return true;
     return false;
   }
-
+  const closePopup=()=>{
+        setOpen(false);
+  }
   return (
 
     <InputPopupOuterContainer>
@@ -49,6 +51,7 @@ export default function Inputpopup({ setOpen, setNewChat }) {
         </p>
         <input type="text" onChange={(e) => { setEmail(e.target.value); console.log(email) }} />
         <input type="submit" onClick={(e) => submitChat(e)} />
+        <div onClick={closePopup}>x</div>
       </InputPopupContainer>
     </InputPopupOuterContainer>
   )
@@ -69,6 +72,7 @@ const InputPopupOuterContainer = styled.div`
 `
 
 const InputPopupContainer = styled.div`
+    position:relative;
     height:15rem;
     width:20rem;
     pointer-events:all;
@@ -89,5 +93,13 @@ const InputPopupContainer = styled.div`
       border:none;
       outline:none;
       border-radius:1rem;
+    }
+    div{
+     position: absolute;
+     cursor: pointer;
+     color:black; 
+     font-size:2rem;
+      top:1rem;
+     right:1rem;
     }
 `
