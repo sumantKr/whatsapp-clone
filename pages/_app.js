@@ -22,6 +22,7 @@ function MyApp({ Component, pageProps }) {
       if (user) {
 
         await setDoc(doc(db, "users",user.uid), {
+          uid:user.uid,
           email: user.email,
           lastSeen: serverTimestamp(),
           photoUrl: user.photoURL

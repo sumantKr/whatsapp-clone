@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
 import { auth, db } from '../firebase/firebase-init';
-import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
+import { addDoc, collection, getDocs,getDoc, query, where } from "firebase/firestore";
 import validator from 'validator'
 import { useAuthState } from 'react-firebase-hooks/auth';
 
@@ -9,18 +9,34 @@ export default function Inputpopup({ setOpen, setNewChat }) {
   const [user] = useAuthState(auth);
   const [email, setEmail] = useState();
   const submitChat = async (e) => {
+    e.target.value='Wait...'
     if ((!email || !validator.isEmail(email)) || email === user.email) {
+      e.target.value='Submit'
       alert('Kindly Enter Valid Email')
       return;
     }
     if (await chatAlreadyExist(email)) {
+      e.target.value='Submit'
       alert('chat already exist')
 
       return;
     }
+    const recipientId=await getDocs(
+      query(
+        collection(db,"users"),
+        where("email","==",email)
+        )
+      )
+    if(recipientId.docs.length==0){
+      e.target.value='Submit'
+      alert('No such user exist')
+      return;
+    }  
     await addDoc(collection(db, "chats"), {
+      chatId:user.uid+"_"+recipientId.docs[0].id,
       users: [user.email, email]
     })
+    e.target.value='Submit'
     setNewChat(true);
     setOpen(false);
     return;

@@ -7,9 +7,11 @@ import { auth, db } from "../firebase/firebase-init";
 import { useAuthState } from "react-firebase-hooks/auth";
 import {  collection,  doc, getDocs, query, where } from "firebase/firestore";
 import { useEffect, useState } from "react";
+import {useRouter} from 'next/router'
 import Chat from "./Chat";
 import Inputpopup from "./Inputpopup";
 export default function Sidebar() {
+  const router=useRouter();
   const [user] = useAuthState(auth);
   const [allChats, setAllChats] = useState({});
   const [newChat, setNewChat] = useState(false);
@@ -29,7 +31,10 @@ export default function Sidebar() {
   const createChat = async () => {
     setOpen(true);
   }
-
+  const homeAndSignOut=async()=>{
+    await auth.signOut();
+    router.replace('/')
+  }
   
 
   return (
@@ -42,7 +47,7 @@ export default function Sidebar() {
     }
       <Header>
 
-        <StyledAvatar src={user.photoURL} onClick={() => { auth.signOut() }} />
+        <StyledAvatar src={user.photoURL} onClick={homeAndSignOut} />
         <div>
           <IconButton>
             <ChatIcon />
@@ -62,12 +67,11 @@ export default function Sidebar() {
       <ChatContainer>
         {
           allChats?.docs?.length > 0 ?
-            allChats.docs.map((doc) => {
-              return <Chat key={doc.id} id={doc.id} email={
+            allChats.docs.map((doc,idx) => {
+              return <Chat key={idx} id={doc.data().chatId} email={
                 doc.data().users[1] === user.email ?
-                  doc.data().users[0] :
-                  doc.data().users[1]
-
+                doc.data().users[0] :
+                doc.data().users[1]
               } />
             })
             :

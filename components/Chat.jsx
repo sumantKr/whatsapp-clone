@@ -18,7 +18,7 @@ export default function Chat({id, email }) {
   );
   
   const openChat=()=>{
-      router.push(`/chat/${user.uid}_${id}`)
+      router.push(`/chat/${id}`)
       }
 
   return (

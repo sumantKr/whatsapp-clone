@@ -2,12 +2,14 @@ import styled from "styled-components"
 import Head from "next/head"
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import { signInWithPopup } from "firebase/auth";
-import { auth,provider } from "../firebase/firebase-init";
+import { auth,db,provider } from "../firebase/firebase-init";
+import { collection, doc, getDoc, query, setDoc, where } from "firebase/firestore";
 
 export default function Login() {
 
-    const signIn =()=>{
-        signInWithPopup(auth,provider).catch(alert);
+    const signIn =async()=>{
+        const ret = await signInWithPopup(auth,provider).catch(alert);
+       
     }
     return (
         <LoginSection>
